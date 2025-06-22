@@ -21,26 +21,26 @@ const AnalyzePage = () => {
     formData.append('user_name', user.name);
 
     try {
-      const response = await fetch('http://localhost:5000/upload', {
+      const response = await fetch('http://localhost:5001/upload', {
         method: 'POST',
         body: formData,
-        credentials: 'include'  // ✅ 이거 꼭 있어야 해 (백에서 credentials: true 썼으니까)
+        credentials: 'include'
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        const imageUrl = URL.createObjectURL(file);
-        const fileName = file.name;
+        const fileName = result.filename; // ✅ 서버에서 받은 실제 저장 파일명
+        const imageUrl = `http://localhost:5001/input_image/${fileName}`; // ✅ static URL로 구성
 
         setSelectedImage({ image: imageUrl, fileName, isSample: false });
 
-        navigate('/analyze/result', {
+        navigate('/analyze/loading', {
           state: {
             image: imageUrl,
             fileName,
             isSample: false,
-            ocrText: '',         // ✅ OCR 사용 안함
+            ocrText: '',
             isSecondSample: fileName === 'sample_darkpattern2.png',
           },
         });
@@ -54,8 +54,8 @@ const AnalyzePage = () => {
   };
 
   const handleSampleImageUse = () => {
-    const sampleImage = '/input_image/sample_image.png';
-    const sampleFileName = 'sample_image.png';
+    const sampleImage = 'http://localhost:5001/input_image/coupang_test.png';
+    const sampleFileName = 'coupang_test.png';
 
     setSelectedImage({
       image: sampleImage,
@@ -77,6 +77,21 @@ const AnalyzePage = () => {
   return (
     <>
       <Navbar />
+      <div className="news-header-video">
+        <video
+          className="news-header-video-bg"
+          src="/analyze/darkpattern_analyze_banner1.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+        <div className="news-header-overlay" />
+        <div className="news-header-text">
+          <h1>AI를 이용한 다크패턴 분석 서비스</h1>
+          <p>이미지 파일을 통해서 분석을 해드립니다.</p>
+        </div>
+      </div> 
       <div className="analyze-container">
         <div className="upload-box">
           <h2>AI를 이용한 다크패턴 분석 서비스</h2>
@@ -96,7 +111,7 @@ const AnalyzePage = () => {
         <div className="sample-box">
           <h4>샘플이미지</h4>
           <p>아래 이미지를 사용해 분석해보세요.</p>
-          <img src="/input_image/sample_image.png" alt="샘플 이미지" />
+          <img src="http://localhost:5001/input_image/coupang_test.png" alt="샘플 이미지" />
           <button onClick={handleSampleImageUse}>사용하기 →</button>
         </div>
       </div>

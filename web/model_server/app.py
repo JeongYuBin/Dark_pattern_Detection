@@ -21,16 +21,28 @@ def predict():
     if not filename:
         return jsonify({"error": "filename 누락됨"}), 400
 
-    # ✅ server/input_image에서 이미지 로드
-    img_path = os.path.join("input_image", filename)  # ✅ 변경
+    img_path = os.path.join("input_image", filename)
     if not os.path.exists(img_path):
         return jsonify({"error": f"{img_path} 경로에 이미지가 존재하지 않습니다."}), 404
 
     try:
         prediction_results = process_image_and_predict(img_path)
-        if prediction_results:
-            predicate_col.insert_many(prediction_results)
-        return jsonify({"message": "✅ 예측 및 저장 완료", "count": len(prediction_results)})
+
+        # ✅ 예측 결과에 filename 추가
+        for result in prediction_results:
+            result["filename"] = filename
+
+        # ✅ 다크패턴인 경우만 필터링해서 저장
+        dark_patterns_only = [r for r in prediction_results if r.get("is_darkpattern") == 1]
+
+        if dark_patterns_only:
+            predicate_col.insert_many(dark_patterns_only)
+
+        return jsonify({
+            "message": "✅ 예측 완료",
+            "total": len(prediction_results),
+            "saved": len(dark_patterns_only)
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

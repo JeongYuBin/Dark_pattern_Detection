@@ -16,7 +16,7 @@ function DarkQuiz() {
 
   useEffect(() => {
     // DB에서 퀴즈 데이터 가져오기
-    axios.get('http://localhost:5000/quiz')
+    axios.get('http://localhost:5001/quiz')
       .then(res => {
         // level 순으로 정렬된 데이터라고 가정
         const sortedQuiz = res.data.data.sort((a, b) => a.level - b.level);
@@ -160,7 +160,7 @@ function DarkQuiz() {
                     quizData[currentLevel - 1].picture !== '' && (
                       <div className="quiz-image-wrapper">
                         <img
-                          src={quizData[currentLevel - 1].picture}
+                          src={`http://localhost:5001${quizData[currentLevel - 1].picture}`}
                           alt="문제 이미지"
                           className="quiz-image"
                         />
